@@ -337,6 +337,14 @@ func (ix *Index) IsFolder(path string) bool {
 	return ok
 }
 
+// HasEntry reports whether `path` is an exact known entry (a leaf), independent
+// of the active filter — the index is a full snapshot, so a filtered-out entry
+// is still completable.
+func (ix *Index) HasEntry(path string) bool {
+	_, ok := ix.entries[strings.TrimSpace(path)]
+	return ok
+}
+
 // childPath is the full path of a child name under dir (with trailing slash).
 func childPath(dir, name string) string {
 	if k := folderKey(dir); k != "" {
