@@ -59,3 +59,28 @@ func TestRenderLoadingAndEmpty(t *testing.T) {
 		t.Errorf("empty state should render an empty line:\n%s", out)
 	}
 }
+
+func TestHighlightMatches(t *testing.T) {
+	base := func(s string) string { return "[" + s + "]" }
+	hl := func(s string) string { return "<" + s + ">" }
+	cases := []struct {
+		name      string
+		display   string
+		positions []int
+		width     int
+		want      string
+	}{
+		{"no positions", "hello", nil, 40, "[hello]"},
+		{"all matched contiguous", "db", []int{0, 1}, 40, "<db>"},
+		{"mixed segments", "abc", []int{1}, 40, "[a]<b>[c]"},
+		{"truncation marker uses base, not hl", "abcdefghij", []int{0}, 4, "<a>[bc][~]"},
+		{"positions beyond kept range ignored", "abcdefghij", []int{9}, 4, "[abc][~]"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := render.HighlightMatches(tc.display, tc.positions, tc.width, base, hl); got != tc.want {
+				t.Errorf("HighlightMatches(%q,%v,%d) = %q, want %q", tc.display, tc.positions, tc.width, got, tc.want)
+			}
+		})
+	}
+}

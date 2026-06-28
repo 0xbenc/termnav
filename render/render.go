@@ -199,3 +199,47 @@ func rowLine(row termnav.Row, selected bool, th termtheme.Theme, st Styler, widt
 	}
 	return th.Style(role, body)
 }
+
+// HighlightMatches cell-truncates display to width and styles it: runes at the
+// given match positions are wrapped with hl(), the rest with base(). If
+// truncation appended termtheme's "~" overflow marker, it is re-emitted via
+// base() so the marker is never highlighted. base/hl let each app supply its own
+// role styling (e.g. selected vs unselected row). Lifted verbatim from the
+// byte-identical copies passage and ssherpa each carried.
+func HighlightMatches(display string, positions []int, width int, base, hl func(string) string) string {
+	truncated := termtheme.Truncate(display, width)
+	if len(positions) == 0 {
+		return base(truncated)
+	}
+	keptStr := truncated
+	hasMarker := false
+	if termtheme.VisibleWidth(display) > width && strings.HasSuffix(truncated, "~") {
+		keptStr = strings.TrimSuffix(truncated, "~")
+		hasMarker = true
+	}
+	runes := []rune(keptStr)
+	matched := make([]bool, len(runes))
+	for _, p := range positions {
+		if p >= 0 && p < len(runes) {
+			matched[p] = true
+		}
+	}
+	var b strings.Builder
+	for i := 0; i < len(runes); {
+		j := i
+		for j < len(runes) && matched[j] == matched[i] {
+			j++
+		}
+		seg := string(runes[i:j])
+		if matched[i] {
+			b.WriteString(hl(seg))
+		} else {
+			b.WriteString(base(seg))
+		}
+		i = j
+	}
+	if hasMarker {
+		b.WriteString(base("~"))
+	}
+	return b.String()
+}
