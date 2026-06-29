@@ -1,5 +1,7 @@
 # termnav
 
+> **Part of [termsystem](https://github.com/0xbenc/termsystem)** — the shared terminal-UI ecosystem (`termtheme` · `termnav` · `termchrome` · `termintro` powering `passage` · `ssherpa` · `dangit`). The ecosystem map, dependency graph, and the agent guide ([AGENTS.md](https://github.com/0xbenc/termsystem/blob/main/AGENTS.md)) live there.
+
 `termnav` is the shared file/namespace **navigation** engine for terminal TUIs —
 a sibling to [`termtheme`](https://github.com/0xbenc/termtheme). It owns exactly
 the must-agree navigation logic that [`passage`](https://github.com/0xbenc/passage)
